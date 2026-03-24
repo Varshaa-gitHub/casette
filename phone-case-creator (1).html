@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casétte ✨ — Phone Case Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf4f0;--surface:#fff;--panel:#fff8f5;--border:#f0e0d8;
+  --shadow:rgba(200,150,160,.13);--text:#3a2830;--sub:#9a8088;
+  --pink:#ffb7c5;--blue:#b5d8f7;--green:#b8f0c0;--yellow:#ffd6a5;--purple:#d4b8f0;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before,body::after{content:'';position:fixed;pointer-events:none;z-index:0;border-radius:50%;opacity:.35}
+body::before{width:500px;height:500px;top:-200px;left:-200px;background:radial-gradient(circle,#ffb7c5,transparent 70%)}
+body::after{width:400px;height:400px;bottom:-150px;right:-100px;background:radial-gradient(circle,#b5d8f7,transparent 70%)}
+
+header{text-align:center;padding:16px 16px 6px;position:relative;z-index:10}
+header h1{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;background:linear-gradient(135deg,#ff6b9d,#b085f5,#5ec8e8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--sub);font-size:.8rem;margin-top:2px}
+
+/* MOBILE TAB BAR */
+.tab-bar{display:none;position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);overflow-x:auto;white-space:nowrap;padding:0 4px;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{display:inline-flex;align-items:center;gap:4px;padding:10px 12px;border:none;background:none;font-family:'Nunito',sans-serif;font-size:.73rem;font-weight:700;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.tab-btn.active{color:#ff6b9d;border-bottom-color:#ff6b9d}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:218px 1fr 218px;gap:11px;padding:0 11px 30px;max-width:1150px;margin:0 auto;position:relative;z-index:1;align-items:start}
+.left-panel,.right-panel{display:flex;flex-direction:column;gap:10px;min-width:0}
+.center{display:flex;flex-direction:column;align-items:center;gap:9px}
+
+/* CARD */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:11px;box-shadow:0 3px 14px var(--shadow)}
+.card h3{font-family:'Baloo 2',cursive;font-size:.73rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1.1px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+
+/* PHONE SHELL */
+.phone-wrap{position:relative;display:inline-block;filter:drop-shadow(0 20px 40px rgba(180,120,150,.22))}
+.phone-svg{position:absolute;inset:0;pointer-events:none;z-index:10;width:100%;height:100%}
+#caseCanvas{display:block;cursor:crosshair;position:relative;z-index:5}
+
+/* TOOLBAR */
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:100%;max-width:480px}
+.tbtn{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:700;color:var(--sub);cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .18s;white-space:nowrap}
+.tbtn:hover,.tbtn.active{background:var(--pink);border-color:#ff8fab;color:#7a2040;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,143,171,.3)}
+.tbtn.danger:hover{background:#ffe0e0;border-color:#ffaaaa;color:#a03030}
+.dl-btn{background:linear-gradient(135deg,#5ec8e8,#b085f5);border:none;border-radius:12px;padding:9px 22px;font-family:'Baloo 2',cursive;font-size:.9rem;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(100,140,240,.35);transition:transform .2s,box-shadow .2s;letter-spacing:.3px}
+.dl-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 28px rgba(100,140,240,.45)}
+
+/* SEL CONTROLS */
+#selControls{display:none;width:100%;max-width:290px}
+#selControls.vis{display:block}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.ctrl-block label{display:block;font-size:.63rem;color:var(--sub);margin-bottom:2px;font-weight:700}
+.ctrl-block input[type=range]{width:100%;accent-color:var(--pink);margin-top:2px}
+.ctrl-block input[type=color]{width:100%;height:26px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;padding:2px;background:var(--panel)}
+.mini-row{display:flex;gap:5px;margin-bottom:5px}
+.mini-btn{flex:1;background:var(--panel);border:1.5px solid var(--border);border-radius:7px;padding:4px 2px;font-size:.63rem;font-weight:700;color:var(--sub);cursor:pointer;text-align:center;transition:all .15s}
+.mini-btn:hover{background:var(--blue);border-color:#88bbe0;color:#2050a0}
+.del-btn{width:100%;background:#ffe8e8;border:1.5px solid #ffb0b0;border-radius:9px;padding:6px;font-family:'Nunito',sans-serif;font-size:.76rem;font-weight:800;color:#c03030;cursor:pointer;transition:background .15s;margin-top:4px}
+.del-btn:hover{background:#ffd0d0}
+
+/* GRIDS */
+.emoji-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
+.emoji-item{font-size:1.25rem;text-align:center;cursor:pointer;border-radius:7px;padding:3px 1px;line-height:1.15;border:1.5px solid transparent;transition:transform .15s,background .15s;user-select:none}
+.emoji-item:hover{background:#fef0f5;border-color:var(--pink);transform:scale(1.2)}
+.animal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;max-height:180px;overflow-y:auto}
+.animal-item{font-size:1.2rem;text-align:center;cursor:pointer;border-radius:7px;padding:4px 2px;line-height:1.25;border:1.5px solid transparent;transition:transform .15s,background .15s;user-select:none}
+.animal-item:hover{background:#f0f8fe;border-color:var(--blue);transform:scale(1.2)}
+.shape-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.shape-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border-radius:8px;padding:5px 3px;border:1.5px solid var(--border);background:var(--panel);transition:all .15s;font-size:.6rem;font-weight:700;color:var(--sub)}
+.shape-item svg{width:22px;height:22px}
+.shape-item:hover{background:var(--green);border-color:#80d090;color:#205030;transform:scale(1.05)}
+.quote-list{display:flex;flex-direction:column;gap:4px}
+.quote-item{font-size:.67rem;font-weight:700;color:var(--sub);padding:6px 9px;border-radius:9px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;line-height:1.35}
+.quote-item:hover{background:#fef7ff;border-color:var(--purple);color:#6030a0;transform:translateX(2px)}
+
+/* BG */
+.swatch-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px}
+.sw{width:23px;height:23px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0}
+.sw:hover{transform:scale(1.22)}
+.sw.sel{border-color:var(--text);transform:scale(1.15)}
+.gsw{width:23px;height:23px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .15s;flex-shrink:0}
+.gsw:hover{transform:scale(1.22)}
+.gsw.sel{border-color:var(--text)}
+.cr{display:flex;align-items:center;gap:6px;margin-top:5px}
+.cr label{font-size:.63rem;color:var(--sub);font-weight:700}
+.cr input[type=color]{width:32px;height:24px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px}
+
+/* TEXT PANEL */
+.txt-inp{width:100%;padding:7px 10px;border-radius:9px;border:1.5px solid var(--border);font-family:'Nunito',sans-serif;font-size:.82rem;background:var(--panel);color:var(--text);outline:none;transition:border-color .2s}
+.txt-inp:focus{border-color:var(--pink)}
+.font-row{display:flex;gap:4px;flex-wrap:wrap;margin:5px 0}
+.font-chip{font-size:.6rem;padding:3px 7px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;background:var(--panel);transition:all .15s;font-weight:700;color:var(--sub)}
+.font-chip:hover,.font-chip.active{background:var(--purple);border-color:#b090e0;color:#6030a0}
+.add-btn{width:100%;background:linear-gradient(135deg,#ffb7c5,#d4b8f0);border:none;border-radius:9px;padding:8px;font-family:'Baloo 2',cursive;font-size:.82rem;font-weight:700;color:#5a2060;cursor:pointer;transition:transform .15s,box-shadow .15s;margin-top:5px}
+.add-btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(212,184,240,.5)}
+.sl-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.sl-row label{font-size:.63rem;color:var(--sub);font-weight:700;min-width:40px}
+.sl-row input[type=range]{flex:1;accent-color:var(--pink)}
+
+/* PHONE SIZE */
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px}
+.model-chip{text-align:center;padding:5px 3px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:.6rem;font-weight:800;color:var(--sub);background:var(--panel);transition:all .15s;line-height:1.35}
+.model-chip:hover,.model-chip.sel{background:var(--yellow);border-color:#e0a060;color:#7a4000}
+.dim-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.dim-row label{font-size:.63rem;color:var(--sub);min-width:48px;font-weight:700}
+.dim-inp{flex:1;padding:4px 7px;border:1.5px solid var(--border);border-radius:7px;font-family:'Nunito',sans-serif;font-size:.76rem;background:var(--panel);color:var(--text);outline:none}
+.dim-inp:focus{border-color:var(--yellow)}
+.apply-btn{width:100%;background:linear-gradient(135deg,#ffd6a5,#ffb7c5);border:none;border-radius:8px;padding:7px;font-family:'Baloo 2',cursive;font-size:.78rem;font-weight:700;color:#7a3020;cursor:pointer;transition:transform .15s;margin-top:2px}
+.apply-btn:hover{transform:translateY(-1px)}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:#ff8fab;background:#fff0f5}
+.upload-zone p{font-size:.67rem;color:var(--sub);font-weight:700;margin-top:4px;line-height:1.4}
+.upload-zone .uz-icon{font-size:1.4rem}
+#fileInput{display:none}
+
+/* ── UNIQUE FEATURES ── */
+
+/* MOOD METER */
+.mood-meter{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:6px}
+.mood-opt{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border-radius:9px;padding:6px 3px;border:1.5px solid var(--border);background:var(--panel);font-size:.6rem;font-weight:700;color:var(--sub);transition:all .15s}
+.mood-opt span:first-child{font-size:1.2rem;line-height:1}
+.mood-opt:hover,.mood-opt.sel{transform:scale(1.07)}
+.mood-apply{width:100%;background:linear-gradient(135deg,#ffd6a5,#c8e6ff);border:none;border-radius:8px;padding:6px;font-family:'Baloo 2',cursive;font-size:.76rem;font-weight:700;color:#5a3020;cursor:pointer;margin-top:4px;transition:transform .15s}
+.mood-apply:hover{transform:translateY(-1px)}
+
+/* STICKER PACKS */
+.pack-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
+.pack-tab{font-size:.6rem;font-weight:700;padding:3px 8px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;background:var(--panel);color:var(--sub);transition:all .15s;white-space:nowrap}
+.pack-tab.active,.pack-tab:hover{background:var(--pink);border-color:#ff8fab;color:#7a2040}
+
+/* PATTERN FILL */
+.pattern-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.pat-item{width:100%;aspect-ratio:1;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s}
+.pat-item:hover,.pat-item.sel{border-color:var(--text);transform:scale(1.08)}
+
+/* UNDO/REDO */
+.ur-row{display:flex;gap:5px;justify-content:center}
+.ur-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px}
+.ur-btn:hover:not(:disabled){background:var(--yellow);border-color:#e0a060;color:#7a4000}
+.ur-btn:disabled{opacity:.4;cursor:default}
+
+/* SHARE PREVIEW MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(50,30,40,.5);z-index:999;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:22px;padding:24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(100,60,80,.3);text-align:center;position:relative}
+.modal h2{font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.modal p{font-size:.78rem;color:var(--sub);margin-bottom:14px}
+.mockup-wrap{display:flex;justify-content:center;gap:18px;margin-bottom:16px}
+.mockup-phone{position:relative;display:inline-flex;flex-direction:column;align-items:center}
+.mockup-phone canvas{border-radius:18px;box-shadow:0 8px 24px rgba(180,120,150,.25);border:2px solid #e0d0d8}
+.mockup-label{font-size:.65rem;font-weight:700;color:var(--sub);margin-top:5px}
+.modal-btns{display:flex;gap:8px;justify-content:center}
+.modal-dl{background:linear-gradient(135deg,#5ec8e8,#b085f5);border:none;border-radius:10px;padding:9px 22px;font-family:'Baloo 2',cursive;font-size:.85rem;font-weight:800;color:#fff;cursor:pointer}
+.modal-close{background:var(--panel);border:1.5px solid var(--border);border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;color:var(--sub);cursor:pointer}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#3a2830;color:#fff;padding:9px 20px;border-radius:999px;font-size:.76rem;font-weight:700;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+
+/* RESPONSIVE */
+@media(max-width:860px){.app{grid-template-columns:185px 1fr 185px}}
+@media(max-width:650px){
+  .tab-bar{display:flex}
+  .app{grid-template-columns:1fr;padding:0 8px 30px;gap:8px}
+  .left-panel,.right-panel{display:none;flex-direction:column;gap:8px}
+  .left-panel.mob,.right-panel.mob{display:flex}
+  .center.mob-hide{display:none}
+}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- SHARE/PREVIEW MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>✨ Your Case is Ready!</h2>
+    <p>Preview on both colours before saving</p>
+    <div class="mockup-wrap" id="mockupWrap"></div>
+    <div class="modal-btns">
+      <button class="modal-dl" onclick="doDownload()">💾 Download PNG</button>
+      <button class="modal-close" onclick="closeModal()">← Back</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>✨ Casétte</h1>
+  <p>Design your daily mood case · drag · drop · rotate · vibe</p>
+</header>
+
+<!-- MOBILE TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('canvas',this)">📱 Canvas</button>
+  <button class="tab-btn" onclick="showTab('bg',this)">🎨 BG</button>
+  <button class="tab-btn" onclick="showTab('mood',this)">🌈 Mood</button>
+  <button class="tab-btn" onclick="showTab('stickers',this)">🌟 Stickers</button>
+  <button class="tab-btn" onclick="showTab('upload',this)">🖼️ Photo</button>
+  <button class="tab-btn" onclick="showTab('quotes',this)">💬 Quotes</button>
+  <button class="tab-btn" onclick="showTab('animals',this)">🐾 Animals</button>
+  <button class="tab-btn" onclick="showTab('shapes',this)">⬜ Shapes</button>
+  <button class="tab-btn" onclick="showTab('text',this)">✍️ Text</button>
+  <button class="tab-btn" onclick="showTab('size',this)">📐 Size</button>
+</div>
+
+<div class="app">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel" id="LP">
+
+    <!-- MOOD METER -->
+    <div class="card" id="moodCard">
+      <h3>🌈 Mood of the Day</h3>
+      <div class="mood-meter" id="moodMeter"></div>
+      <button class="mood-apply" onclick="applyMoodTheme()">✨ Apply Mood Theme</button>
+    </div>
+
+    <!-- BG -->
+    <div class="card" id="bgCard">
+      <h3>🎨 Background</h3>
+      <div class="swatch-row" id="bgSolids"></div>
+      <div class="swatch-row" id="bgGrads"></div>
+      <!-- Pattern fills -->
+      <div style="font-size:.6rem;font-weight:700;color:var(--sub);margin:6px 0 4px">Patterns</div>
+      <div class="pattern-grid" id="patternGrid"></div>
+      <div class="cr">
+        <label>Custom</label>
+        <input type="color" id="customBg" value="#fde4ec">
+      </div>
+    </div>
+
+    <!-- STICKERS — tabbed packs -->
+    <div class="card" id="stickersCard">
+      <h3>🌟 Stickers</h3>
+      <div class="pack-tabs" id="packTabs"></div>
+      <div class="emoji-grid" id="stickerGrid"></div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="card" id="uploadCard">
+      <h3>🖼️ Upload Photo</h3>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="uz-icon">📷</div>
+        <p>Tap or drag photo here</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+  </div>
+
+  <!-- CENTER -->
+  <div class="center" id="CP">
+
+    <!-- UNDO/REDO -->
+    <div class="ur-row">
+      <button class="ur-btn" id="undoBtn" onclick="undo()" disabled>↩ Undo</button>
+      <button class="ur-btn" id="redoBtn" onclick="redo()" disabled>↪ Redo</button>
+    </div>
+
+    <div class="phone-wrap" id="phoneWrap">
+      <svg class="phone-svg" id="phoneSvg" viewBox="0 0 260 520" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none"></svg>
+      <canvas id="caseCanvas"></canvas>
+    </div>
+
+    <div class="toolbar">
+      <button class="tbtn active" id="btnSel" onclick="setMode('select')">↖ Select</button>
+      <button class="tbtn danger" onclick="confirmClear()">🗑 Clear</button>
+      <button class="dl-btn" onclick="openModal()">👁 Preview & Save</button>
+    </div>
+
+    <div id="selControls">
+      <div class="card">
+        <h3>✏️ Edit Selected</h3>
+        <div class="ctrl-grid">
+          <div class="ctrl-block">
+            <label>Size</label>
+            <input type="range" id="sldSize" min="10" max="300" value="60" oninput="applySize(+this.value)">
+          </div>
+          <div class="ctrl-block">
+            <label>Rotate °</label>
+            <input type="range" id="sldRot" min="-180" max="180" value="0" oninput="applyRot(+this.value)">
+          </div>
+          <div class="ctrl-block">
+            <label>Opacity %</label>
+            <input type="range" id="sldOp" min="10" max="100" value="100" oninput="applyOpacity(+this.value)">
+          </div>
+          <div class="ctrl-block" id="blkTc" style="display:none">
+            <label>Text Color</label>
+            <input type="color" id="selTc" value="#3a2830" oninput="applyTc(this.value)">
+          </div>
+          <div class="ctrl-block" id="blkFill" style="display:none">
+            <label>Fill</label>
+            <input type="color" id="selFill" value="#ffb7c5" oninput="applyFill(this.value)">
+          </div>
+          <div class="ctrl-block" id="blkBdr" style="display:none">
+            <label>Border</label>
+            <input type="color" id="selBdr" value="#ff8fab" oninput="applyBdr(this.value)">
+          </div>
+        </div>
+        <div class="mini-row">
+          <button class="mini-btn" onclick="doFlipH()">↔ H</button>
+          <button class="mini-btn" onclick="doFlipV()">↕ V</button>
+          <button class="mini-btn" onclick="layerUp()">▲ Fwd</button>
+          <button class="mini-btn" onclick="layerDn()">▼ Back</button>
+        </div>
+        <button class="del-btn" onclick="delSel()">🗑 Remove</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="RP">
+
+    <!-- QUOTES -->
+    <div class="card" id="quotesCard">
+      <h3>💬 Quotes</h3>
+      <div class="quote-list" id="quoteList"></div>
+    </div>
+
+    <!-- ANIMALS -->
+    <div class="card" id="animalsCard">
+      <h3>🐾 Cute Animals</h3>
+      <div class="animal-grid" id="animalsGrid"></div>
+    </div>
+
+    <!-- SHAPES -->
+    <div class="card" id="shapesCard">
+      <h3>⬜ Shapes</h3>
+      <div class="shape-grid" id="shapesGrid"></div>
+      <div class="cr" style="margin-top:6px">
+        <label>Fill</label>
+        <input type="color" id="shapeClr" value="#ffb7c5">
+        <label style="margin-left:5px">Border</label>
+        <input type="color" id="shapeBdrClr" value="#ff8fab">
+      </div>
+    </div>
+
+    <!-- TEXT -->
+    <div class="card" id="textCard">
+      <h3>✍️ My Words</h3>
+      <input type="text" class="txt-inp" id="textInput" placeholder="type anything…" maxlength="50">
+      <div class="font-row" id="fontRow"></div>
+      <div class="sl-row"><label>Size</label><input type="range" min="12" max="80" value="22" id="txtSz"></div>
+      <div class="cr"><label>Color</label><input type="color" id="txtClr" value="#3a2830"></div>
+      <button class="add-btn" onclick="addText()">+ Add to Case</button>
+    </div>
+
+    <!-- PHONE SIZE -->
+    <div class="card" id="sizeCard">
+      <h3>📐 Phone Model</h3>
+      <div class="model-grid" id="modelGrid"></div>
+      <div class="dim-row"><label>Width px</label><input type="number" class="dim-inp" id="dimW" value="260" min="180" max="420"></div>
+      <div class="dim-row"><label>Height px</label><input type="number" class="dim-inp" id="dimH" value="520" min="300" max="820"></div>
+      <button class="apply-btn" onclick="applyDims()">Apply ↵</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════ */
+const PASTEL_SOLIDS=['#fde4ec','#fce4b8','#e4f5d4','#d4eef9','#e8dcf8','#fdf4d8','#ffd6d6','#d6f0e0','#d6e4ff','#ffe8d6','#f0d6ff','#ffffff','#f5f5f5'];
+const GRADIENTS=[['#ffd6e7','#c8e6ff'],['#d0f0c0','#b0d8ff'],['#ffe4b5','#ffd6fa'],['#b5e8d5','#d8b5f5'],['#ffd1dc','#d1dcff'],['#fff0d6','#ffd6f0'],['#c4f0c5','#c5e8ff'],['#fde4b0','#f0b0de'],['#e0d6ff','#ffd6e0']];
+
+const STICKER_PACKS={
+  'Mood 🌈':['🌈','🌸','⚡','🌙','☀️','💫','🌊','🔥','🌿','🦋','❄️','🌺','🍀','🌼','✨'],
+  'Emoji 😊':['😊','😎','🥰','😴','🤩','😤','🥺','😂','🤔','😇','🙃','🥳','😈','🤗','😻'],
+  'Food 🍓':['🍓','🧁','🍩','🍰','☕','🧋','🍦','🍫','🍬','🍭','🥐','🍕','🍜','🫶','🎂'],
+  'Space 🚀':['🚀','🌍','⭐','🌟','☄️','🪐','🌙','👾','🛸','🔭','💫','🌌','🪨','🌠','🛰️'],
+  'Hearts 💕':['💕','💖','💗','💝','💘','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🫀','💞'],
+};
+
+const ANIMALS=[{e:'🐘',n:'Dumbo'},{e:'🦥',n:'Flash'},{e:'🦊',n:'Nick'},{e:'🐼',n:'Panda'},{e:'🐨',n:'Koala'},{e:'🐻',n:'Baloo'},{e:'🐰',n:'Snowball'},{e:'🦁',n:'Simba'},{e:'🐸',n:'Toad'},{e:'🦄',n:'Unicorn'},{e:'🐙',n:'Pearl'},{e:'🦔',n:'Spike'},{e:'🐶',n:'Dug'},{e:'🐱',n:'Marie'},{e:'🦩',n:'Flamingo'},{e:'🐷',n:'Piglet'},{e:'🐻‍❄️',n:'Polar'},{e:'🐲',n:'Mushu'},{e:'🐠',n:'Nemo'},{e:'🐿️',n:'Chip'}];
+const QUOTES=['"soft but mighty 🌸"','"main character energy"','"serotonin on demand ✨"','"emotionally unavailable"','"chaos, kindly ☁️"','"professional daydreamer"','"bite-sized but bold"','"here for the snacks"','"healing in progress 🌱"','"unbothered, moisturized"'];
+const FONTS=['Nunito',"'Baloo 2'",'Georgia','Courier New','Impact'];
+const FONT_LABELS=['Nunito','Baloo','Serif','Mono','Impact'];
+
+// Phone models: name, canvas W, canvas H, corner radius ratio, camera style
+// camera: {type:'pill'|'circle'|'island'|'none', x,y,w,h} — in canvas coords
+const MODELS=[
+  {name:'iPhone 15 Pro',  w:260,h:520, cr:0.135, cam:{type:'island', x:85, y:12, w:90, h:28}},
+  {name:'iPhone 14',      w:250,h:500, cr:0.13,  cam:{type:'notch',  x:75, y:0,  w:100,h:30}},
+  {name:'Galaxy S24',     w:265,h:540, cr:0.10,  cam:{type:'pill',   x:116,y:12, w:32, h:14}},
+  {name:'Pixel 9',        w:255,h:510, cr:0.09,  cam:{type:'bar',    x:20, y:8,  w:215,h:22}},
+];
+
+const MOOD_OPTS=[
+  {e:'😴',label:'Tired',   bg:['#e8dcf8','#c8e6ff'], accent:'#b085f5'},
+  {e:'🥰',label:'Loved',   bg:['#ffd6e7','#ffb7c5'], accent:'#ff6b9d'},
+  {e:'🔥',label:'Hype',    bg:['#ffd6a5','#ff8fab'], accent:'#ff6030'},
+  {e:'🌿',label:'Chill',   bg:['#d0f0c0','#b5e8d5'], accent:'#40b070'},
+  {e:'⚡',label:'Focus',   bg:['#d6e4ff','#c8e6ff'], accent:'#4080f0'},
+];
+
+// Pattern definitions (drawn on a tiny offscreen canvas → dataURL)
+const PATTERNS=['dots','stripes','hearts','stars','waves','checks','zigzag','flowers'];
+
+/* ═══════════════════════════════════════════════════
+   CANVAS & STATE
+═══════════════════════════════════════════════════ */
+const canvas = document.getElementById('caseCanvas');
+const ctx = canvas.getContext('2d');
+const S = 2; // HiDPI
+
+let DW=260, DH=520;
+let currentModel = MODELS[0];
+
+// All state declared BEFORE initCanvas is called
+let items=[], selIdx=-1;
+let drag=false, rotDrag=false, scaleDrag=false;
+let offX=0, offY=0, initDist=0, initSz=0;
+let mode='select', chosenFont=FONTS[0];
+let bg={type:'solid', value:'#fde4ec'};
+let selectedMood=null;
+let activePack=Object.keys(STICKER_PACKS)[0];
+let undoStack=[], redoStack=[];
+let patternCanvas=null; // for pattern bg
+
+function saveToUndo(){
+  undoStack.push(JSON.stringify({items:itemsForJSON(), bg, selIdx:-1}));
+  if(undoStack.length>40) undoStack.shift();
+  redoStack=[];
+  syncUndoUI();
+}
+function itemsForJSON(){
+  return items.map(it=>{
+    const c={...it};
+    if(c.img) c.img=null; // can't JSON images
+    if(c._patCanvas) c._patCanvas=null;
+    return c;
+  });
+}
+function syncUndoUI(){
+  document.getElementById('undoBtn').disabled=undoStack.length===0;
+  document.getElementById('redoBtn').disabled=redoStack.length===0;
+}
+function undo(){
+  if(!undoStack.length) return;
+  redoStack.push(JSON.stringify({items:itemsForJSON(),bg,selIdx:-1}));
+  const s=JSON.parse(undoStack.pop());
+  items=s.items; bg=s.bg; selIdx=-1;
+  updateSelUI(); render(); syncUndoUI();
+}
+function redo(){
+  if(!redoStack.length) return;
+  undoStack.push(JSON.stringify({items:itemsForJSON(),bg,selIdx:-1}));
+  const s=JSON.parse(redoStack.pop());
+  items=s.items; bg=s.bg; selIdx=-1;
+  updateSelUI(); render(); syncUndoUI();
+}
+
+/* ── PHONE SVG FRAME ── */
+function buildPhoneSVG(model){
+  const svg=document.getElementById('phoneSvg');
+  const w=model.w, h=model.h;
+  const cr=Math.round(w*model.cr);
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+
+  let camHTML='';
+  const cam=model.cam;
+  if(cam.type==='island'){
+    camHTML=`<rect x="${cam.x}" y="${cam.y}" width="${cam.w}" height="${cam.h}" rx="${cam.h/2}" ry="${cam.h/2}" fill="#1a1214" opacity=".85"/>`;
+  } else if(cam.type==='notch'){
+    camHTML=`<path d="M${cam.x},0 Q${cam.x+10},${cam.h} ${cam.x+20},${cam.h} L${cam.x+cam.w-20},${cam.h} Q${cam.x+cam.w-10},${cam.h} ${cam.x+cam.w},0 Z" fill="#d8c8d0"/>`;
+  } else if(cam.type==='pill'){
+    camHTML=`<rect x="${cam.x}" y="${cam.y}" width="${cam.w}" height="${cam.h}" rx="${cam.h/2}" ry="${cam.h/2}" fill="#1a1214" opacity=".85"/>`;
+  } else if(cam.type==='bar'){
+    camHTML=`<rect x="${cam.x}" y="${cam.y}" width="${cam.w}" height="${cam.h}" rx="${cam.h/2}" ry="${cam.h/2}" fill="#d0c0c8"/>
+             <circle cx="${cam.x+cam.h/2+4}" cy="${cam.y+cam.h/2}" r="${cam.h/2-2}" fill="#1a1214" opacity=".85"/>
+             <circle cx="${cam.x+cam.h/2+4+26}" cy="${cam.y+cam.h/2}" r="${cam.h/2-2}" fill="#1a1214" opacity=".85"/>`;
+  }
+
+  svg.innerHTML=`
+    <!-- phone border -->
+    <rect x="0" y="0" width="${w}" height="${h}" rx="${cr}" ry="${cr}"
+      fill="none" stroke="#d0c0c8" stroke-width="4"
+      style="filter:drop-shadow(0 0 0 6px #f5eff3)"/>
+    <!-- inner gloss -->
+    <rect x="2" y="2" width="${w-4}" height="${h-4}" rx="${cr-2}" ry="${cr-2}"
+      fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+    <!-- camera / notch -->
+    ${camHTML}
+  `;
+}
+
+function initCanvas(w, h, model){
+  DW=w; DH=h;
+  canvas.width=w*S; canvas.height=h*S;
+  canvas.style.width=w+'px'; canvas.style.height=h+'px';
+  const br=Math.round(Math.min(w,h)*(model?model.cr:0.135))+'px';
+  canvas.style.borderRadius=br;
+  const wrap=document.getElementById('phoneWrap');
+  wrap.style.width=w+'px'; wrap.style.height=h+'px';
+  if(model) buildPhoneSVG(model);
+  render();
+}
+initCanvas(DW, DH, currentModel);
+
+/* ═══════════════════════════════════════════════════
+   PATTERN HELPERS
+═══════════════════════════════════════════════════ */
+function makePatternCanvas(name){
+  const pc=document.createElement('canvas'); pc.width=40; pc.height=40;
+  const c=pc.getContext('2d');
+  c.fillStyle='#fff8f5'; c.fillRect(0,0,40,40);
+  const col='rgba(255,150,180,0.35)';
+  if(name==='dots'){for(let x=10;x<40;x+=20)for(let y=10;y<40;y+=20){c.beginPath();c.arc(x,y,4,0,Math.PI*2);c.fillStyle=col;c.fill();}}
+  else if(name==='stripes'){c.strokeStyle=col;c.lineWidth=3;for(let i=-40;i<80;i+=12){c.beginPath();c.moveTo(i,0);c.lineTo(i+40,40);c.stroke();}}
+  else if(name==='hearts'){c.font='20px serif';c.fillStyle=col;c.fillText('♥',5,25);c.fillText('♥',22,10);}
+  else if(name==='stars'){c.font='16px serif';c.fillStyle=col;c.fillText('★',4,22);c.fillText('★',22,38);}
+  else if(name==='waves'){c.strokeStyle=col;c.lineWidth=2.5;for(let y=10;y<50;y+=12){c.beginPath();for(let x=0;x<=40;x+=4){c.lineTo(x,y+Math.sin(x/5)*4);}c.stroke();}}
+  else if(name==='checks'){c.fillStyle=col;for(let x=0;x<40;x+=20)for(let y=0;y<40;y+=20){if((x/20+y/20)%2===0)c.fillRect(x,y,20,20);}}
+  else if(name==='zigzag'){c.strokeStyle=col;c.lineWidth=2.5;for(let y=8;y<48;y+=12){c.beginPath();for(let x=0;x<=40;x+=8){c.lineTo(x,y+(x%16===0?0:6));}c.stroke();}}
+  else if(name==='flowers'){c.font='18px serif';c.fillStyle=col;c.fillText('❀',2,22);c.fillText('❀',22,38);}
+  return pc;
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════ */
+function render(){
+  ctx.save();
+  ctx.scale(S,S);
+
+  // clip to phone shape
+  const cr=Math.round(Math.min(DW,DH)*(currentModel?currentModel.cr:0.135));
+  ctx.beginPath();
+  roundRect(ctx,0,0,DW,DH,cr);
+  ctx.clip();
+
+  ctx.clearRect(0,0,DW,DH);
+
+  // BG
+  if(bg.type==='solid'){
+    ctx.fillStyle=bg.value; ctx.fillRect(0,0,DW,DH);
+  } else if(bg.type==='gradient'){
+    const g=ctx.createLinearGradient(0,0,DW,DH);
+    g.addColorStop(0,bg.from); g.addColorStop(1,bg.to);
+    ctx.fillStyle=g; ctx.fillRect(0,0,DW,DH);
+  } else if(bg.type==='pattern'&&bg.patCanvas){
+    const pat=ctx.createPattern(bg.patCanvas,'repeat');
+    ctx.fillStyle=pat; ctx.fillRect(0,0,DW,DH);
+  }
+
+  // Items
+  items.forEach((item,i)=>{
+    ctx.save();
+    ctx.globalAlpha=(item.opacity||100)/100;
+    ctx.translate(item.x,item.y);
+    ctx.rotate((item.rot||0)*Math.PI/180);
+    if(item.flipH) ctx.scale(-1,1);
+    if(item.flipV) ctx.scale(1,-1);
+
+    if(item.type==='emoji'){
+      ctx.font=item.size+'px serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(item.content,0,0);
+    } else if(item.type==='text'){
+      ctx.font='bold '+item.size+'px '+(item.fontFamily||'Nunito');
+      ctx.fillStyle=item.color||'#3a2830';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.shadowColor='rgba(0,0,0,.1)'; ctx.shadowBlur=4;
+      ctx.fillText(item.content,0,0);
+      ctx.shadowBlur=0;
+    } else if(item.type==='shape'){
+      drawShape(ctx,item);
+    } else if(item.type==='image'&&item.img){
+      ctx.drawImage(item.img,-item.size/2,-item.size*item.aspect/2,item.size,item.size*item.aspect);
+    }
+
+    // Selection handles
+    if(i===selIdx){
+      if(item.flipH) ctx.scale(-1,1);
+      if(item.flipV) ctx.scale(1,-1);
+      const hw=getHW(item), hh=getHH(item);
+      ctx.strokeStyle='#ff6b9d'; ctx.lineWidth=1.6; ctx.setLineDash([5,3]);
+      ctx.strokeRect(-hw-7,-hh-7,(hw+7)*2,(hh+7)*2);
+      ctx.setLineDash([]);
+      // Rot handle (top)
+      ctx.fillStyle='#ff6b9d';
+      ctx.beginPath(); ctx.arc(0,-(hh+20),7,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+      // Scale handle (bottom-right)
+      ctx.fillStyle='#5ec8e8';
+      ctx.beginPath(); ctx.arc(hw+7,hh+7,7,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  });
+
+  ctx.restore();
+}
+
+function roundRect(c,x,y,w,h,r){
+  c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();
+}
+
+function drawShape(ctx,item){
+  const s=item.size;
+  ctx.fillStyle=item.fillColor||'#ffb7c5';
+  ctx.strokeStyle=item.borderColor||'#ff8fab';
+  ctx.lineWidth=2.5;
+  ctx.setLineDash(item.shapeId.includes('-dot')?[5,4]:[]);
+  if(item.shapeId.startsWith('circle')){ctx.beginPath();ctx.arc(0,0,s/2,0,Math.PI*2);ctx.fill();ctx.stroke();}
+  else if(item.shapeId.startsWith('square')){ctx.fillRect(-s/2,-s/2,s,s);ctx.strokeRect(-s/2,-s/2,s,s);}
+  else if(item.shapeId.startsWith('rect')){ctx.fillRect(-s/2,-s*.33,s,s*.66);ctx.strokeRect(-s/2,-s*.33,s,s*.66);}
+  ctx.setLineDash([]);
+}
+
+function getHW(item){
+  if(item.type==='text'){
+    ctx.save();ctx.scale(S,S);
+    ctx.font='bold '+item.size+'px '+(item.fontFamily||'Nunito');
+    const w=ctx.measureText(item.content).width/2; ctx.restore();
+    return Math.max(w,item.size*.5);
+  }
+  return item.size/2+4;
+}
+function getHH(item){
+  if(item.type==='text') return item.size*.55;
+  if(item.type==='image') return item.size*item.aspect/2+4;
+  if(item.shapeId&&item.shapeId.startsWith('rect')) return item.size*.37;
+  return getHW(item);
+}
+
+/* ═══════════════════════════════════════════════════
+   INPUT
+═══════════════════════════════════════════════════ */
+function cXY(e){
+  const r=canvas.getBoundingClientRect();
+  const sx=DW/r.width, sy=DH/r.height;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-r.left)*sx, y:(src.clientY-r.top)*sy};
+}
+function unrot(pos,item){
+  const dx=pos.x-item.x, dy=pos.y-item.y;
+  const a=-(item.rot||0)*Math.PI/180;
+  return{x:dx*Math.cos(a)-dy*Math.sin(a), y:dx*Math.sin(a)+dy*Math.cos(a)};
+}
+function hitTest(pos){
+  for(let i=items.length-1;i>=0;i--){
+    const l=unrot(pos,items[i]);
+    const hw=getHW(items[i])+8, hh=getHH(items[i])+8;
+    if(Math.abs(l.x)<hw&&Math.abs(l.y)<hh) return i;
+  }
+  return -1;
+}
+function isRotH(pos,item){const l=unrot(pos,item);return Math.hypot(l.x,l.y+(getHH(item)+20))<13;}
+function isScaleH(pos,item){const l=unrot(pos,item);return Math.abs(l.x-(getHW(item)+7))<13&&Math.abs(l.y-(getHH(item)+7))<13;}
+
+canvas.addEventListener('mousedown',onDown);
+canvas.addEventListener('mousemove',onMove);
+canvas.addEventListener('mouseup',onUp);
+canvas.addEventListener('mouseleave',onUp);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();onDown(e);},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();onMove(e);},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault();onUp();});
+
+function onDown(e){
+  const p=cXY(e);
+  if(mode==='select'){
+    if(selIdx>=0&&selIdx<items.length){
+      if(isRotH(p,items[selIdx])){rotDrag=true;return;}
+      if(isScaleH(p,items[selIdx])){scaleDrag=true;initDist=Math.hypot(p.x-items[selIdx].x,p.y-items[selIdx].y);initSz=items[selIdx].size;return;}
+    }
+    const hit=hitTest(p);
+    selIdx=hit;
+    if(hit>=0){drag=true;offX=p.x-items[hit].x;offY=p.y-items[hit].y;}
+    updateSelUI();render();
+  }
+}
+function onMove(e){
+  const p=cXY(e);
+  if(rotDrag&&selIdx>=0){
+    items[selIdx].rot=Math.round(Math.atan2(p.y-items[selIdx].y,p.x-items[selIdx].x)*180/Math.PI+90);
+    document.getElementById('sldRot').value=items[selIdx].rot;
+    render();return;
+  }
+  if(scaleDrag&&selIdx>=0){
+    const d=Math.hypot(p.x-items[selIdx].x,p.y-items[selIdx].y);
+    items[selIdx].size=Math.max(10,Math.min(400,initSz*(d/initDist)));
+    document.getElementById('sldSize').value=items[selIdx].size;
+    render();return;
+  }
+  if(drag&&selIdx>=0){items[selIdx].x=p.x-offX;items[selIdx].y=p.y-offY;render();}
+}
+function onUp(){
+  if(drag||rotDrag||scaleDrag) saveToUndo();
+  drag=false;rotDrag=false;scaleDrag=false;
+}
+
+/* ═══════════════════════════════════════════════════
+   ADD ITEMS
+═══════════════════════════════════════════════════ */
+function spawn(item){
+  saveToUndo();
+  item.x=DW/2+(Math.random()-.5)*80;
+  item.y=DH/2+(Math.random()-.5)*120;
+  item.rot=(Math.random()-.5)*12;
+  item.opacity=100; item.flipH=false; item.flipV=false;
+  items.push(item); selIdx=items.length-1;
+  updateSelUI(); render();
+}
+function addEmoji(e){spawn({type:'emoji',content:e,size:56});}
+function addShape(sid){spawn({type:'shape',shapeId:sid,size:80,fillColor:document.getElementById('shapeClr').value,borderColor:document.getElementById('shapeBdrClr').value});}
+function addText(){
+  const v=document.getElementById('textInput').value.trim();
+  if(!v){toast('Type something first ✏️');return;}
+  spawn({type:'text',content:v,size:+document.getElementById('txtSz').value,fontFamily:chosenFont,color:document.getElementById('txtClr').value});
+  document.getElementById('textInput').value='';
+}
+function addQuote(q){spawn({type:'text',content:q,size:16,fontFamily:"'Baloo 2'",color:'#6030a0'});}
+
+/* ═══════════════════════════════════════════════════
+   PHOTO UPLOAD
+═══════════════════════════════════════════════════ */
+document.getElementById('fileInput').addEventListener('change',function(){
+  if(!this.files[0])return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>spawn({type:'image',img,size:110,aspect:img.height/img.width});
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(this.files[0]);
+  this.value='';
+});
+const uz=document.getElementById('uploadZone');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag');});
+uz.addEventListener('dragleave',()=>uz.classList.remove('drag'));
+uz.addEventListener('drop',e=>{
+  e.preventDefault();uz.classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')){
+    const dt=new DataTransfer();dt.items.add(f);
+    document.getElementById('fileInput').files=dt.files;
+    document.getElementById('fileInput').dispatchEvent(new Event('change'));
+  }
+});
+
+/* ═══════════════════════════════════════════════════
+   SEL UI
+═══════════════════════════════════════════════════ */
+function updateSelUI(){
+  const ctrl=document.getElementById('selControls');
+  if(selIdx<0||selIdx>=items.length){ctrl.classList.remove('vis');return;}
+  ctrl.classList.add('vis');
+  const it=items[selIdx];
+  document.getElementById('sldSize').value=it.size;
+  document.getElementById('sldRot').value=it.rot||0;
+  document.getElementById('sldOp').value=it.opacity||100;
+  const iT=it.type==='text', iS=it.type==='shape';
+  document.getElementById('blkTc').style.display=iT?'block':'none';
+  document.getElementById('blkFill').style.display=iS?'block':'none';
+  document.getElementById('blkBdr').style.display=iS?'block':'none';
+  if(iT) document.getElementById('selTc').value=it.color||'#3a2830';
+  if(iS){document.getElementById('selFill').value=it.fillColor||'#ffb7c5';document.getElementById('selBdr').value=it.borderColor||'#ff8fab';}
+}
+function applySize(v){if(selIdx<0)return;items[selIdx].size=v;render();}
+function applyRot(v){if(selIdx<0)return;items[selIdx].rot=v;render();}
+function applyOpacity(v){if(selIdx<0)return;items[selIdx].opacity=v;render();}
+function applyTc(c){if(selIdx<0)return;items[selIdx].color=c;render();}
+function applyFill(c){if(selIdx<0)return;items[selIdx].fillColor=c;render();}
+function applyBdr(c){if(selIdx<0)return;items[selIdx].borderColor=c;render();}
+function doFlipH(){if(selIdx<0)return;saveToUndo();items[selIdx].flipH=!items[selIdx].flipH;render();}
+function doFlipV(){if(selIdx<0)return;saveToUndo();items[selIdx].flipV=!items[selIdx].flipV;render();}
+function layerUp(){if(selIdx<0||selIdx>=items.length-1)return;saveToUndo();[items[selIdx],items[selIdx+1]]=[items[selIdx+1],items[selIdx]];selIdx++;render();}
+function layerDn(){if(selIdx<=0)return;saveToUndo();[items[selIdx],items[selIdx-1]]=[items[selIdx-1],items[selIdx]];selIdx--;render();}
+function delSel(){if(selIdx<0)return;saveToUndo();items.splice(selIdx,1);selIdx=-1;updateSelUI();render();}
+function confirmClear(){if(!items.length){toast('Canvas is already empty!');return;}if(confirm('Clear all items?')){saveToUndo();items=[];selIdx=-1;updateSelUI();render();}}
+
+/* ═══════════════════════════════════════════════════
+   MODE
+═══════════════════════════════════════════════════ */
+function setMode(m){
+  mode=m;
+  document.getElementById('btnSel').classList.toggle('active',m==='select');
+  canvas.style.cursor=m==='select'?'crosshair':'text';
+}
+
+/* ═══════════════════════════════════════════════════
+   MOOD THEME
+═══════════════════════════════════════════════════ */
+function applyMoodTheme(){
+  if(!selectedMood){toast('Pick a mood first! 🌈');return;}
+  saveToUndo();
+  bg={type:'gradient',from:selectedMood.bg[0],to:selectedMood.bg[1]};
+  document.querySelectorAll('.sw,.gsw').forEach(x=>x.classList.remove('sel'));
+  render();
+  toast('Mood theme applied ✨');
+}
+
+/* ═══════════════════════════════════════════════════
+   PREVIEW MODAL & DOWNLOAD
+═══════════════════════════════════════════════════ */
+function openModal(){
+  const prev=selIdx; selIdx=-1; render();
+
+  const wrap=document.getElementById('mockupWrap');
+  wrap.innerHTML='';
+
+  // Two phone colour previews
+  const shells=['#f5eff3','#2d2020'];
+  const labels=['White Case','Black Case'];
+  shells.forEach((shell,i)=>{
+    const mc=document.createElement('canvas');
+    const mw=130, mh=Math.round(130*DH/DW);
+    mc.width=mw; mc.height=mh;
+    const mctx=mc.getContext('2d');
+    // shell bg
+    mctx.fillStyle=shell; mctx.beginPath();
+    roundRect(mctx,0,0,mw,mh,Math.round(mw*currentModel.cr));
+    mctx.fill();
+    // inner design scaled
+    mctx.save();
+    mctx.beginPath();
+    roundRect(mctx,3,3,mw-6,mh-6,Math.round(mw*currentModel.cr)-2);
+    mctx.clip();
+    mctx.drawImage(canvas,3,3,mw-6,mh-6);
+    mctx.restore();
+    // border
+    mctx.strokeStyle=i===0?'#d8c8d0':'#504050';
+    mctx.lineWidth=2.5; mctx.beginPath();
+    roundRect(mctx,1,1,mw-2,mh-2,Math.round(mw*currentModel.cr)-1);
+    mctx.stroke();
+
+    const div=document.createElement('div');
+    div.className='mockup-phone';
+    div.appendChild(mc);
+    const lbl=document.createElement('div');
+    lbl.className='mockup-label'; lbl.textContent=labels[i];
+    div.appendChild(lbl);
+    wrap.appendChild(div);
+  });
+
+  document.getElementById('modalOverlay').classList.add('open');
+  selIdx=prev; render();
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function doDownload(){
+  const prev=selIdx; selIdx=-1; render();
+  const a=document.createElement('a');
+  a.download='casette-design.png';
+  a.href=canvas.toDataURL('image/png');
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  selIdx=prev; render();
+  closeModal();
+  toast('Downloaded! 🎉 Check your Downloads folder.');
+}
+
+/* ═══════════════════════════════════════════════════
+   DIMS / MODEL
+═══════════════════════════════════════════════════ */
+function applyDims(){
+  const w=+document.getElementById('dimW').value;
+  const h=+document.getElementById('dimH').value;
+  if(w>=180&&w<=420&&h>=300&&h<=820){currentModel={...currentModel,w,h};initCanvas(w,h,currentModel);}
+  else toast('Width 180–420 · Height 300–820');
+}
+
+/* ═══════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════ */
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+/* ═══════════════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  const a=document.activeElement;
+  if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
+  if(e.key==='Delete'||e.key==='Backspace') delSel();
+  if(e.key==='Escape'){selIdx=-1;updateSelUI();render();}
+  if(e.key==='z'&&(e.ctrlKey||e.metaKey)&&!e.shiftKey) undo();
+  if((e.key==='z'&&e.shiftKey&&(e.ctrlKey||e.metaKey))||(e.key==='y'&&(e.ctrlKey||e.metaKey))) redo();
+  const step=e.shiftKey?10:2;
+  if(selIdx>=0){
+    if(e.key==='ArrowLeft'){items[selIdx].x-=step;render();}
+    if(e.key==='ArrowRight'){items[selIdx].x+=step;render();}
+    if(e.key==='ArrowUp'){items[selIdx].y-=step;render();}
+    if(e.key==='ArrowDown'){items[selIdx].y+=step;render();}
+  }
+});
+
+/* ═══════════════════════════════════════════════════
+   MOBILE TABS
+═══════════════════════════════════════════════════ */
+function showTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const LP=document.getElementById('LP'),RP=document.getElementById('RP'),CP=document.getElementById('CP');
+  LP.classList.remove('mob');RP.classList.remove('mob');CP.style.display='flex';
+  if(tab==='canvas')return;
+  const leftTabs=['bg','mood','stickers','upload'];
+  if(leftTabs.includes(tab)){
+    CP.style.display='none';LP.classList.add('mob');
+    const ids={bg:'bgCard',mood:'moodCard',stickers:'stickersCard',upload:'uploadCard'};
+    setTimeout(()=>document.getElementById(ids[tab])?.scrollIntoView({behavior:'smooth'}),50);
+  } else {
+    CP.style.display='none';RP.classList.add('mob');
+    const ids={quotes:'quotesCard',animals:'animalsCard',shapes:'shapesCard',text:'textCard',size:'sizeCard'};
+    setTimeout(()=>document.getElementById(ids[tab])?.scrollIntoView({behavior:'smooth'}),50);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   BUILD UI — all DOM construction
+═══════════════════════════════════════════════════ */
+
+// BG Solids
+const bsEl=document.getElementById('bgSolids');
+PASTEL_SOLIDS.forEach((c,i)=>{
+  const d=document.createElement('div'); d.className='sw'+(i===0?' sel':''); d.style.background=c;
+  d.onclick=()=>{document.querySelectorAll('.sw,.gsw,.pat-item').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');bg={type:'solid',value:c};render();};
+  bsEl.appendChild(d);
+});
+// BG Gradients
+const bgEl=document.getElementById('bgGrads');
+GRADIENTS.forEach(([f,t])=>{
+  const d=document.createElement('div'); d.className='gsw'; d.style.background=`linear-gradient(135deg,${f},${t})`;
+  d.onclick=()=>{document.querySelectorAll('.sw,.gsw,.pat-item').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');bg={type:'gradient',from:f,to:t};render();};
+  bgEl.appendChild(d);
+});
+// Custom BG color
+document.getElementById('customBg').addEventListener('input',function(){
+  document.querySelectorAll('.sw,.gsw,.pat-item').forEach(x=>x.classList.remove('sel'));
+  bg={type:'solid',value:this.value};render();
+});
+
+// Pattern fills
+const patEl=document.getElementById('patternGrid');
+PATTERNS.forEach(name=>{
+  const pc=makePatternCanvas(name);
+  const d=document.createElement('canvas'); d.width=36; d.height=36; d.className='pat-item'; d.title=name;
+  d.getContext('2d').drawImage(pc,0,0,36,36);
+  d.style.borderRadius='8px';
+  d.onclick=()=>{document.querySelectorAll('.sw,.gsw,.pat-item').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');bg={type:'pattern',patCanvas:pc};render();};
+  patEl.appendChild(d);
+});
+
+// Mood meter
+const mmEl=document.getElementById('moodMeter');
+MOOD_OPTS.forEach(m=>{
+  const d=document.createElement('div'); d.className='mood-opt';
+  d.style.borderColor=m.accent+'60';
+  d.innerHTML=`<span>${m.e}</span><span>${m.label}</span>`;
+  d.onclick=()=>{
+    document.querySelectorAll('.mood-opt').forEach(x=>x.classList.remove('sel'));
+    d.classList.add('sel'); d.style.background=m.accent+'22';
+    selectedMood=m;
+  };
+  mmEl.appendChild(d);
+});
+
+// Sticker packs — tabbed
+const packTabsEl=document.getElementById('packTabs');
+const stickerGridEl=document.getElementById('stickerGrid');
+Object.keys(STICKER_PACKS).forEach((pack,i)=>{
+  const btn=document.createElement('div'); btn.className='pack-tab'+(i===0?' active':''); btn.textContent=pack;
+  btn.onclick=()=>{
+    document.querySelectorAll('.pack-tab').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active'); activePack=pack; renderStickerPack();
+  };
+  packTabsEl.appendChild(btn);
+});
+function renderStickerPack(){
+  stickerGridEl.innerHTML='';
+  STICKER_PACKS[activePack].forEach(e=>{
+    const d=document.createElement('div'); d.className='emoji-item'; d.textContent=e;
+    d.onclick=()=>addEmoji(e); stickerGridEl.appendChild(d);
+  });
+}
+renderStickerPack();
+
+// Animals
+const agEl=document.getElementById('animalsGrid');
+ANIMALS.forEach(a=>{
+  const d=document.createElement('div'); d.className='animal-item'; d.textContent=a.e; d.title=a.n;
+  d.onclick=()=>addEmoji(a.e); agEl.appendChild(d);
+});
+
+// Quotes
+const qlEl=document.getElementById('quoteList');
+QUOTES.forEach(q=>{
+  const d=document.createElement('div'); d.className='quote-item'; d.textContent=q;
+  d.onclick=()=>addQuote(q); qlEl.appendChild(d);
+});
+
+// Shapes — SVG icons for clarity
+const SHAPE_DEFS=[
+  {id:'circle',     label:'Circle',    svg:'<circle cx="11" cy="11" r="9" fill="#ffb7c5" stroke="#ff8fab" stroke-width="2"/>'},
+  {id:'square',     label:'Square',    svg:'<rect x="2" y="2" width="18" height="18" fill="#b5d8f7" stroke="#5ec8e8" stroke-width="2"/>'},
+  {id:'rect',       label:'Rect',      svg:'<rect x="1" y="5" width="20" height="12" fill="#c5f0c0" stroke="#60c070" stroke-width="2"/>'},
+  {id:'circle-dot', label:'Circle ···',svg:'<circle cx="11" cy="11" r="9" fill="#ffecf5" stroke="#ff8fab" stroke-width="2" stroke-dasharray="4 3"/>'},
+  {id:'square-dot', label:'Square ···',svg:'<rect x="2" y="2" width="18" height="18" fill="#ecf5ff" stroke="#5ec8e8" stroke-width="2" stroke-dasharray="4 3"/>'},
+  {id:'rect-dot',   label:'Rect ···',  svg:'<rect x="1" y="5" width="20" height="12" fill="#f0fff0" stroke="#60c070" stroke-width="2" stroke-dasharray="4 3"/>'},
+];
+const shEl=document.getElementById('shapesGrid');
+SHAPE_DEFS.forEach(s=>{
+  const d=document.createElement('div'); d.className='shape-item';
+  d.innerHTML=`<svg viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">${s.svg}</svg><span>${s.label}</span>`;
+  d.onclick=()=>addShape(s.id); shEl.appendChild(d);
+});
+
+// Fonts
+const frEl=document.getElementById('fontRow');
+FONTS.forEach((f,i)=>{
+  const d=document.createElement('span'); d.className='font-chip'+(i===0?' active':'');
+  d.textContent=FONT_LABELS[i]; d.style.fontFamily=f;
+  d.onclick=()=>{document.querySelectorAll('.font-chip').forEach(x=>x.classList.remove('active'));d.classList.add('active');chosenFont=f;};
+  frEl.appendChild(d);
+});
+
+// Phone models
+const mdEl=document.getElementById('modelGrid');
+MODELS.forEach((m,i)=>{
+  const d=document.createElement('div'); d.className='model-chip'+(i===0?' sel':'');
+  d.innerHTML=`<div>${m.name}</div><div style="font-size:.58rem;opacity:.7">${m.w}×${m.h}</div>`;
+  d.onclick=()=>{
+    document.querySelectorAll('.model-chip').forEach(x=>x.classList.remove('sel'));
+    d.classList.add('sel'); currentModel=m;
+    document.getElementById('dimW').value=m.w;
+    document.getElementById('dimH').value=m.h;
+    initCanvas(m.w,m.h,m);
+  };
+  mdEl.appendChild(d);
+});
+
+// Enter key on text input
+document.getElementById('textInput').addEventListener('keydown',e=>{if(e.key==='Enter')addText();});
+
+render();
+syncUndoUI();
+setTimeout(()=>toast('✨ Tap any sticker, animal or shape to place it on your case!'),700);
+</script>
+</body>
+</html>
